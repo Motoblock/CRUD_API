@@ -1,0 +1,31 @@
+{
+  "name": "crud_api",
+  "version": "1.0.0",
+  "description": "CRUD API using in-memory database underneath",
+  "scripts": {
+    "start": "nodemon ./src/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Motoblock/CRUD_API.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Motoblock/CRUD_API/issues"
+  },
+  "homepage": "https://github.com/Motoblock/CRUD_API#readme",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.48.0",
+    "@typescript-eslint/parser": "^5.48.0",
+    "eslint": "^8.31.0",
+    "nodemon": "^2.0.20",
+    "prettier": "^2.8.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3"
+  }
+}
