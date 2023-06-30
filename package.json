@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "CRUD API using in-memory database underneath",
   "scripts": {
-    "start": "nodemon ./src/index.ts"
+    "start:dev": "nodemon ./src/index.ts",
+    "start:multi": "nodemon ./src/index.ts -- --multi"
   },
   "repository": {
     "type": "git",
