@@ -5,13 +5,13 @@ import { cpus } from 'os';
 // import { availableParallelism } from 'node:os';
 
 import { startServer } from './server';
-import { IUser } from "../src/variable/type";
+import { IUser } from './variable/type';
 
 const port = process.env.PORT || 4000;
 const ports = process.env.PORTS || 4001;
 
 dotenv.config();
-export let SERVER_DATA_BASE: IUser[] = [];
+let DATA_BASE: IUser[] = [];
 
 try {
   const server = startServer();
@@ -33,7 +33,7 @@ try {
       if (cluster.isWorker) {
         server.listen(process.env.PORTS, () => console.log(`Worker started on ${process.pid}`));
         process.on('message', (message: IUser[]) => {
-          SERVER_DATA_BASE = message;
+          DATA_BASE = message;
         });
       }
     }
