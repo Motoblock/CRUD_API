@@ -1,21 +1,15 @@
 import { ServerResponse, IncomingMessage } from 'http';
 import { v4, validate } from 'uuid';
 
-import { IUser } from './variable/type';
+import { IUser, IData } from './variable/type';
 
-async function createDate(request: IncomingMessage, response: ServerResponse): Promise<IUser> {
-  console.log(request);
+async function createDate(request: IncomingMessage): Promise<IData> {
   return new Promise((resolve, reject) => {
     let res = '';
-    console.log('res1',res);
-    request.on('data', (chunk) => {
-      res += chunk.toString();
-    });
-console.log('res2',res);
+    request.on('data', (chunk) => res += chunk );
     request.on('end', () => {
       try {
         const parsRes = JSON.parse(res);
-        console.log('parsedRes',parsRes);
         resolve(parsRes);
       } catch (error) {
         reject(error);
@@ -29,9 +23,7 @@ export const getApiUser = (
   response: ServerResponse,
   DATA_BASE: IUser[]
 ): void => {
-  console.log(url);
   if (url === '/api/users') {
-    console.log(response)
     try {
       response.writeHead(200, { 'Content-Type': 'application/json' });
       response.end(JSON.stringify(DATA_BASE));
@@ -41,8 +33,8 @@ export const getApiUser = (
     }
   } else if (url?.startsWith('/api/users/')) {
     const userId = url.split('/')[3];
-    console.log('id',userId);
-    const user = DATA_BASE.find((i) => +i.id === +userId);
+    const user = DATA_BASE.find((i) => i.id === userId);
+
     if (!userId || !user) {
       console.log('NotFound');
     } else if (!validate(userId)) {
@@ -63,20 +55,17 @@ export const setApiUser = async (
   response: ServerResponse,
   DATA_BASE: IUser[]
 ): Promise<void> => {
-  console.log('url = ',url);
   if (url === '/api/users') {
     try {
-      let data: IUser = await createDate(request, response);
-      console.log(data);
+      let data = await createDate(request);
       if (
-        ['username', 'age', 'hobbies'].every((key) => data.hasOwnProperty(key)) &&
-        Array.isArray(data.hobbies) && data.username.trim().length > 0
+        ['username', 'age', 'hobbies'].every((key) => Object.keys(data).includes(key)) &&
+        Array.isArray(data.hobbies) && data.username.trim().length > 0 && data.age > 0 && 
+        data.hobbies.length > 0
       ) {
-        console.log('BadRequest');
-      } else {
         const { username, age, hobbies } = data;
         const getUser: IUser = {
-          id: +v4(),
+          id: v4(),
           username: username.trim(),
           age: +age,
           hobbies,
@@ -85,9 +74,12 @@ export const setApiUser = async (
         response.writeHead(201, { 'Content-Type': 'application/json' });
         DATA_BASE.push(getUser);
         response.end(JSON.stringify(getUser));
+        console.log(DATA_BASE);
+      } else {
+        console.log('BadRequest');
       }
     } catch (error) {
-      console.log('InternalServerError 1');
+      console.log('InternalServerError');
     }
   } else {
     console.log('BadRequest');

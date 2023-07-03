@@ -12,12 +12,12 @@ const ports = process.env.PORTS || 4001;
 
 dotenv.config();
 export let DATA_BASE: IUser[] = [
-{ id: 1,
+{ id: '46b71936-3b2b-4d48-9763-0f753cb37b99',
   username: 'asd',
   age: 12,
   hobbies: ['123','12']
 },
-{ id: 2,
+{ id: '2e0417c5-30f2-48f6-9a94-ab6637727156',
   username: 'qqasd',
   age: 20,
   hobbies: ['123','12']
@@ -64,9 +64,9 @@ try {
 //         cluster.fork();
 //     }
 // console.log(cluster.workers);
-    // for (const id in cluster.workers) {
-    //     cluster.workers[id].on('message', messageHandler);
-    // }
+//     for (const id in cluster.workers) {
+//         cluster.workers[id].on('message', messageHandler);
+//     }
   } else {
     server.listen(port, () => {
       console.log(`Server started on port ${port}`);
