@@ -11,7 +11,19 @@ const port = process.env.PORT || 4000;
 const ports = process.env.PORTS || 4001;
 
 dotenv.config();
-let DATA_BASE: IUser[] = [];
+export let DATA_BASE: IUser[] = [
+{ id: 1,
+  username: 'asd',
+  age: 12,
+  hobbies: ['123','12']
+},
+{ id: 2,
+  username: 'qqasd',
+  age: 20,
+  hobbies: ['123','12']
+}
+
+];
 
 try {
   const server = startServer();

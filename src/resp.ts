@@ -1,14 +1,35 @@
 import { ServerResponse, IncomingMessage } from 'http';
-import { v4 } from 'uuid';
+import { v4, validate } from 'uuid';
 
 import { IUser } from './variable/type';
 
+async function createDate(request: IncomingMessage, response: ServerResponse): Promise<IUser> {
+  console.log(request);
+  return new Promise((resolve, reject) => {
+    let res = '';
+    console.log('res1',res);
+    request.on('data', (chunk) => {
+      res += chunk.toString();
+    });
+console.log('res2',res);
+    request.on('end', () => {
+      try {
+        const parsRes = JSON.parse(res);
+        console.log('parsedRes',parsRes);
+        resolve(parsRes);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  });
+};
 
 export const getApiUser = (
   url: string,
   response: ServerResponse,
   DATA_BASE: IUser[]
 ): void => {
+  console.log(url);
   if (url === '/api/users') {
     console.log(response)
     try {
@@ -19,13 +40,14 @@ export const getApiUser = (
       response.end(JSON.stringify({ message:'ServerError' }));
     }
   } else if (url?.startsWith('/api/users/')) {
-    const id = url.split('/')[3];
-
-
-    if (!id) {
+    const userId = url.split('/')[3];
+    console.log('id',userId);
+    const user = DATA_BASE.find((i) => +i.id === +userId);
+    if (!userId || !user) {
       console.log('NotFound');
+    } else if (!validate(userId)) {
+      console.log('BadRequest');
     } else {
-      const user = DATA_BASE.find((i) => +i.id === +id);
       console.log(user)
       response.writeHead(200, { 'Content-Type': 'application/json' });
       response.end(JSON.stringify(user));
@@ -42,11 +64,9 @@ export const setApiUser = async (
   DATA_BASE: IUser[]
 ): Promise<void> => {
   console.log('url = ',url);
-  // console.log(response)
-  // console.log(request)
   if (url === '/api/users') {
     try {
-      let data: IUser = await createDate(request);
+      let data: IUser = await createDate(request, response);
       console.log(data);
       if (
         ['username', 'age', 'hobbies'].every((key) => data.hasOwnProperty(key)) &&
@@ -62,9 +82,7 @@ export const setApiUser = async (
           hobbies,
         };
 
-        response.writeHead(201, {
-          'Content-Type': 'application/json',
-        });
+        response.writeHead(201, { 'Content-Type': 'application/json' });
         DATA_BASE.push(getUser);
         response.end(JSON.stringify(getUser));
       }
@@ -76,21 +94,3 @@ export const setApiUser = async (
   }
 };
 
-const createDate =  async (request: IncomingMessage): Promise<IUser> => {
-  return new Promise((resolve, reject) => {
-    let res = '';
-
-    request.on('data', (chunk) => {
-      res += chunk.toString();
-    });
-console.log(res);
-    request.on('end', () => {
-      try {
-        const parsedRes = JSON.parse(res);
-        resolve(parsedRes);
-      } catch (error) {
-        reject(error);
-      }
-    });
-  });
-};
