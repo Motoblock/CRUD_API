@@ -1,12 +1,12 @@
-import { ServerResponse, IncomingMessage } from 'http';
+import { ServerResponse, IncomingMessage } from 'node:http';
 import { v4, validate } from 'uuid';
 
-import { IUser, IData } from './variable/type';
+import { IUser } from './variable/type';
 
-async function createDate(request: IncomingMessage): Promise<IData> {
+async function createDate(request: IncomingMessage): Promise<Omit<IUser, 'id'>> {
   return new Promise((resolve, reject) => {
     let res = '';
-    request.on('data', (chunk) => res += chunk );
+    request.on('data', (chunk) => (res += chunk));
     request.on('end', () => {
       try {
         const parsRes = JSON.parse(res);
@@ -16,20 +16,16 @@ async function createDate(request: IncomingMessage): Promise<IData> {
       }
     });
   });
-};
+}
 
-export const getApiUser = (
-  url: string,
-  response: ServerResponse,
-  DATA_BASE: IUser[]
-): void => {
+export const getApiUser = (url: string, response: ServerResponse, DATA_BASE: IUser[]): void => {
   if (url === '/api/users') {
     try {
       response.writeHead(200, { 'Content-Type': 'application/json' });
       response.end(JSON.stringify(DATA_BASE));
     } catch (error) {
       response.writeHead(500, { 'Content-Type': 'application/json' });
-      response.end(JSON.stringify({ message:'ServerError' }));
+      response.end(JSON.stringify({ message: 'ServerError' }));
     }
   } else if (url?.startsWith('/api/users/')) {
     const userId = url.split('/')[3];
@@ -40,7 +36,7 @@ export const getApiUser = (
     } else if (!validate(userId)) {
       console.log('BadRequest');
     } else {
-      console.log(user)
+      console.log(user);
       response.writeHead(200, { 'Content-Type': 'application/json' });
       response.end(JSON.stringify(user));
     }
@@ -57,10 +53,12 @@ export const setApiUser = async (
 ): Promise<void> => {
   if (url === '/api/users') {
     try {
-      let data = await createDate(request);
+      const data = await createDate(request);
       if (
         ['username', 'age', 'hobbies'].every((key) => Object.keys(data).includes(key)) &&
-        Array.isArray(data.hobbies) && data.username.trim().length > 0 && data.age > 0 && 
+        Array.isArray(data.hobbies) &&
+        data.username.trim().length > 0 &&
+        data.age > 0 &&
         data.hobbies.length > 0
       ) {
         const { username, age, hobbies } = data;
@@ -85,4 +83,3 @@ export const setApiUser = async (
     console.log('BadRequest');
   }
 };
-

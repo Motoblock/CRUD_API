@@ -4,9 +4,3 @@ export interface IUser {
   age: number;
   hobbies: string[];
 }
-
-export interface IData {
-  username: string;
-  age: number;
-  hobbies: string[];
-}
