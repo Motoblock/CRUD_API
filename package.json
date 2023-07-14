@@ -9,10 +9,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Motoblock/CRUD_API.git"
+    "url": "https://github.com/Motoblock/CRUD_API.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Motoblock",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Motoblock/CRUD_API/issues"

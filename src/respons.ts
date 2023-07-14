@@ -2,8 +2,9 @@ import { ServerResponse, IncomingMessage } from 'node:http';
 import { v4, validate } from 'uuid';
 
 import { IUser } from './variable/type';
+import { putMessage } from './lib/answer';
 
-async function createDate(request: IncomingMessage): Promise<Omit<IUser, 'id'>> {
+async function createData(request: IncomingMessage): Promise<Omit<IUser, 'id'>> {
   return new Promise((resolve, reject) => {
     let res = '';
     request.on('data', (chunk) => (res += chunk));
@@ -29,19 +30,21 @@ export const getApiUser = (url: string, response: ServerResponse, DATA_BASE: IUs
     }
   } else if (url?.startsWith('/api/users/')) {
     const userId = url.split('/')[3];
+
+    if (!validate(userId)) {
+      putMessage(response, 400);
+      return;
+    }
     const user = DATA_BASE.find((i) => i.id === userId);
 
     if (!userId || !user) {
-      console.log('NotFound');
-    } else if (!validate(userId)) {
-      console.log('BadRequest');
+      putMessage(response, 404);
     } else {
-      console.log(user);
-      response.writeHead(200, { 'Content-Type': 'application/json' });
+      response.writeHead(201, { 'Content-Type': 'application/json' });
       response.end(JSON.stringify(user));
     }
   } else {
-    console.log('BadRequest');
+    putMessage(response, 400);
   }
 };
 
@@ -53,7 +56,7 @@ export const setApiUser = async (
 ): Promise<void> => {
   if (url === '/api/users') {
     try {
-      const data = await createDate(request);
+      const data = await createData(request);
       if (
         ['username', 'age', 'hobbies'].every((key) => Object.keys(data).includes(key)) &&
         Array.isArray(data.hobbies) &&
@@ -61,25 +64,46 @@ export const setApiUser = async (
         data.age > 0 &&
         data.hobbies.length > 0
       ) {
-        const { username, age, hobbies } = data;
         const getUser: IUser = {
           id: v4(),
-          username: username.trim(),
-          age: +age,
-          hobbies,
+          username: data.username.trim(),
+          age: +data.age,
+          hobbies: data.hobbies,
         };
 
         response.writeHead(201, { 'Content-Type': 'application/json' });
         DATA_BASE.push(getUser);
         response.end(JSON.stringify(getUser));
-        console.log(DATA_BASE);
       } else {
-        console.log('BadRequest');
+        putMessage(response, 400);
       }
     } catch (error) {
-      console.log('InternalServerError');
+      putMessage(response, 500);
     }
   } else {
-    console.log('BadRequest');
+    putMessage(response, 400);
+  }
+};
+
+export const putApiUser = async (
+  url: string,
+  request: IncomingMessage,
+  response: ServerResponse,
+  DATA_BASE: IUser[]
+) => {
+  console.log(response);
+  if (url?.startsWith('/api/users/')) {
+    const id = url.split('/')[3];
+    if (!id || !DATA_BASE.find((i) => i.id === id)) putMessage(response, 404);
+    else if (!validate(id)) {
+      putMessage(response, 400);
+    } else {
+      try {
+        const data = await createData(request);
+        console.log(data);
+      } catch (er) {
+        console.log(er);
+      }
+    }
   }
 };
