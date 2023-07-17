@@ -90,17 +90,61 @@ export const putApiUser = async (
   request: IncomingMessage,
   response: ServerResponse,
   DATA_BASE: IUser[]
-) => {
-  console.log(response);
+): Promise<void> => {
   if (url?.startsWith('/api/users/')) {
-    const id = url.split('/')[3];
-    if (!id || !DATA_BASE.find((i) => i.id === id)) putMessage(response, 404);
-    else if (!validate(id)) {
+    const userId = url.split('/')[3];
+    if (!validate(userId)) {
       putMessage(response, 400);
-    } else {
+      return;
+    }
+    const i = DATA_BASE.findIndex((index) => index.id === userId);
+
+    if (i === undefined) putMessage(response, 404);
+    else {
       try {
         const data = await createData(request);
-        console.log(data);
+        const editUser: IUser = {
+          id: userId,
+          username: data.username.trim(),
+          age: +data.age,
+          hobbies: data.hobbies,
+        };
+
+        DATA_BASE[i] = editUser;
+        response.writeHead(200, {
+          'Content-Type': 'application/json',
+        });
+        response.end(JSON.stringify(editUser));
+      } catch (er) {
+        console.log(er);
+      }
+    }
+  }
+};
+
+export const delApiUser = async (
+  url: string,
+  request: IncomingMessage,
+  response: ServerResponse,
+  DATA_BASE: IUser[]
+): Promise<void> => {
+  if (url?.startsWith('/api/users/')) {
+    const userId = url.split('/')[3];
+    if (!validate(userId)) {
+      putMessage(response, 400);
+      return;
+    }
+    const i = DATA_BASE.findIndex((index) => index.id === userId);
+
+    if (i === undefined) putMessage(response, 404);
+    else {
+      try {
+        console.log(i);
+        DATA_BASE.splice(i, i + 1);
+        response.writeHead(204, {
+          'Content-Type': 'application/json',
+        });
+        response.end(JSON.stringify(DATA_BASE));
       } catch (er) {
         console.log(er);
       }

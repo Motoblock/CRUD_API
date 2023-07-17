@@ -1,6 +1,6 @@
 import { createServer } from 'node:http';
 
-import { getApiUser, setApiUser, putApiUser } from './respons';
+import { getApiUser, setApiUser, putApiUser, delApiUser } from './respons';
 import { DATA_BASE } from './index';
 
 export const startServer = () => {
@@ -16,6 +16,9 @@ export const startServer = () => {
           break;
         case 'PUT':
           putApiUser(url, req, res, DATA_BASE);
+          break;
+        case 'DELETE':
+          delApiUser(url, req, res, DATA_BASE);
           break;
         default:
           console.error(1);
