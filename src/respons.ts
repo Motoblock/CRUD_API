@@ -139,7 +139,6 @@ export const delApiUser = async (
     if (i === undefined) putMessage(response, 404);
     else {
       try {
-        console.log(i);
         DATA_BASE.splice(i, i + 1);
         response.writeHead(204, {
           'Content-Type': 'application/json',

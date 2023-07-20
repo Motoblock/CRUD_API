@@ -1,7 +1,6 @@
 import * as dotenv from 'dotenv';
 import cluster from 'node:cluster';
 import { cpus } from 'node:os';
-// import http from 'node:http';
 
 import { startServer } from './server';
 import { IUser } from './variable/type';
@@ -17,10 +16,10 @@ export let DATA_BASE: IUser[] = [
 ];
 
 try {
-  const server = startServer();
   const args = process.argv.slice(2);
-
+  let server;
   if (args.length) {
+    server = startServer();
     console.log(`Server running at port ${ports}`);
 
     if (cluster.isPrimary) {
@@ -33,14 +32,15 @@ try {
           worker.send(message);
         });
       });
-      if (cluster.isWorker) {
-        server.listen(process.env.PORTS, () => console.log(`Worker ${process.pid} started`));
-        process.on('message', (message: IUser[]) => {
-          DATA_BASE = message;
-        });
-      }
+    }
+    if (cluster.isWorker) {
+      server.listen(process.env.PORTS, () => console.info(`Worker ${process.pid} started`));
+      process.on('message', (message: IUser[]) => {
+        DATA_BASE = message;
+      });
     }
   } else {
+    server = startServer();
     server.listen(port, () => {
       console.log(`Server running at port ${port}`);
     });
