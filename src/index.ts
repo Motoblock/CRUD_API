@@ -2,8 +2,8 @@ import * as dotenv from 'dotenv';
 import cluster from 'node:cluster';
 import { cpus } from 'node:os';
 
-import { startServer } from './server';
-import { IUser } from './variable/type';
+import { startServer } from './server.js';
+import { IUser } from './variable/type.js';
 
 const port = process.env.PORT || 4000;
 const ports = process.env.PORTS || 4001;
@@ -17,9 +17,8 @@ export let DATA_BASE: IUser[] = [
 
 try {
   const args = process.argv.slice(2);
-  let server;
+  const server = startServer();
   if (args.length) {
-    server = startServer();
     console.log(`Server running at port ${ports}`);
 
     if (cluster.isPrimary) {
@@ -40,9 +39,11 @@ try {
       });
     }
   } else {
-    server = startServer();
     server.listen(port, () => {
       console.log(`Server running at port ${port}`);
+      process.on('SIGINT', () => {
+        process.exit();
+      });
     });
   }
 } catch (e) {

@@ -1,7 +1,7 @@
 import { createServer } from 'node:http';
 
-import { getApiUser, setApiUser, putApiUser, delApiUser } from './respons';
-import { DATA_BASE } from './index';
+import { getApiUser, setApiUser, putApiUser, delApiUser } from './respons.js';
+import { DATA_BASE } from './index.js';
 
 export const startServer = () => {
   const server = createServer((req, res) => {

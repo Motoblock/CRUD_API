@@ -1,8 +1,8 @@
 import { ServerResponse, IncomingMessage } from 'node:http';
 import { v4, validate } from 'uuid';
 
-import { IUser } from './variable/type';
-import { putMessage } from './lib/answer';
+import { IUser } from './variable/type.js';
+import { putMessage } from './lib/answer.js';
 
 async function createData(request: IncomingMessage): Promise<Omit<IUser, 'id'>> {
   return new Promise((resolve, reject) => {
