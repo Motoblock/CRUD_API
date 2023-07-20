@@ -19,10 +19,10 @@ try {
   const args = process.argv.slice(2);
   const server = startServer();
   if (args.length) {
-    console.log(`Server running at port ${ports}`);
+    // console.log(`Server running at port ${ports}`);
 
     if (cluster.isPrimary) {
-      console.log(`Process start ${process.pid}`);
+      // console.log(`Process start ${process.pid}`);
       cpus().forEach((_, i) => {
         const portServ = +ports + i;
 
@@ -33,7 +33,9 @@ try {
       });
     }
     if (cluster.isWorker) {
-      server.listen(process.env.PORTS, () => console.info(`Worker ${process.pid} started`));
+      server.listen(process.env.PORTS, () =>
+        console.info(`Worker ${process.pid} started\nServer running at port ${ports}`)
+      );
       process.on('message', (message: IUser[]) => {
         DATA_BASE = message;
       });
@@ -41,11 +43,11 @@ try {
   } else {
     server.listen(port, () => {
       console.log(`Server running at port ${port}`);
-      process.on('SIGINT', () => {
-        process.exit();
-      });
     });
   }
+  process.on('SIGINT', () => {
+    process.exit();
+  });
 } catch (e) {
   process.stderr.write(`Server error - ${e}`);
   process.exit();
