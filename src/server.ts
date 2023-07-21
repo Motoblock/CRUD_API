@@ -6,7 +6,9 @@ import { DATA_BASE } from './index.js';
 export const startServer = () => {
   const server = createServer((req, res) => {
     const { method, url } = req;
+    // console.log(`Server running at http://localhost:${port}/`);
     if (url) {
+      console.log(process.pid);
       switch (method) {
         case 'GET':
           getApiUser(url, res, DATA_BASE);

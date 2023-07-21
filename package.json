@@ -7,8 +7,8 @@
     "build": "webpack",
     "start:dev": "nodemon --exec ts-node-esm src/index.ts",
     "start:prod": "webpack && node dist/index.cjs",
-    "multi:dev": "nodemon --exec ts-node-esm ./src/index.ts -- --multi",
-    "multi:prod": "webpack && node dist/index.cjs -- --multi",
+    "start:multi:dev": "nodemon --exec ts-node-esm ./src/index.ts -- --multi",
+    "start:multi:prod": "webpack && node dist/index.cjs -- --multi",
     "lint": "eslint . --ext .tsx --ext .ts"
   },
   "repository": {

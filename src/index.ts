@@ -1,48 +1,65 @@
 import * as dotenv from 'dotenv';
 import cluster from 'node:cluster';
-import { cpus } from 'node:os';
+import { cpus, availableParallelism } from 'node:os';
+import http from 'node:http';
 
 import { startServer } from './server.js';
+import { portToPicker } from './lib/picker.js';
 import { IUser } from './variable/type.js';
 
-const port = process.env.PORT || 4000;
-const ports = process.env.PORTS || 4001;
+const port = process.env.PORT || '4000';
+const host = process.env.HOST;
 
 dotenv.config();
 
-export let DATA_BASE: IUser[] = [
+export const DATA_BASE: IUser[] = [
   { id: '46b71936-3b2b-4d48-9763-0f753cb37b99', username: 'name1', age: 12, hobbies: ['sport', 'reed book'] },
   { id: '2e0417c5-30f2-48f6-9a94-ab6637727156', username: 'name2', age: 20, hobbies: ['eat', 'sport'] },
 ];
 
 try {
   const args = process.argv.slice(2);
-  const server = startServer();
+  let server;
   if (args.length) {
-    // console.log(`Server running at port ${ports}`);
-
     if (cluster.isPrimary) {
-      // console.log(`Process start ${process.pid}`);
-      cpus().forEach((_, i) => {
-        const portServ = +ports + i;
+      for (let i = 1; i < cpus().length; i++) {
+        const portServ = +port + i;
 
-        cluster.fork({ PORTS: portServ });
-        cluster.on('message', async (worker, message) => {
-          worker.send(message);
+        cluster.fork({ PORT: portServ });
+      }
+      const parallel = availableParallelism() - 1;
+
+      let currentPort = port;
+
+      const loadBalancer = http.createServer((req, res) => {
+        console.log('parallel', parallel);
+        console.log('1currentPort1', currentPort);
+        currentPort = portToPicker(currentPort, parallel);
+        console.log('currentPort2', currentPort);
+        const options = {
+          hostname: host,
+          port: currentPort,
+          path: req.url,
+          method: req.method,
+          json: true,
+        };
+        const request = http.request(options, (resp) => {
+          resp.pipe(res);
         });
+        req.pipe(request);
+        console.info(`Request send to ${currentPort} port`);
       });
-    }
-    if (cluster.isWorker) {
-      server.listen(process.env.PORTS, () =>
-        console.info(`Worker ${process.pid} started\nServer running at port ${ports}`)
-      );
-      process.on('message', (message: IUser[]) => {
-        DATA_BASE = message;
+      loadBalancer.listen(port, () => {
+        console.info(`Load Balancer running at ${port}\nWorker ${process.pid} started`);
       });
+    } else {
+      server = startServer();
+      server.listen(port, () => console.info(`Worker ${process.pid} started\nServer running at port ${port}`));
     }
   } else {
+    server = startServer();
     server.listen(port, () => {
-      console.log(`Server running at port ${port}`);
+      console.info(`Server running at port ${port}`);
     });
   }
   process.on('SIGINT', () => {
