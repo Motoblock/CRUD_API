@@ -25,8 +25,7 @@ export const getApiUser = (url: string, response: ServerResponse, DATA_BASE: IUs
       response.writeHead(200, { 'Content-Type': 'application/json' });
       response.end(JSON.stringify(DATA_BASE));
     } catch (error) {
-      response.writeHead(500, { 'Content-Type': 'application/json' });
-      response.end(JSON.stringify({ message: 'ServerError' }));
+      putMessage(response, 500);
     }
   } else if (url?.startsWith('/api/users/')) {
     const userId = url.split('/')[3];
@@ -99,7 +98,7 @@ export const putApiUser = async (
     }
     const i = DATA_BASE.findIndex((index) => index.id === userId);
 
-    if (i === undefined) putMessage(response, 404);
+    if (i === undefined || i < 0) putMessage(response, 404);
     else {
       try {
         const data = await createData(request);
@@ -136,7 +135,7 @@ export const delApiUser = async (
     }
     const i = DATA_BASE.findIndex((index) => index.id === userId);
 
-    if (i === undefined) putMessage(response, 404);
+    if (i === undefined || i < 0) putMessage(response, 404);
     else {
       try {
         DATA_BASE.splice(i, i + 1);

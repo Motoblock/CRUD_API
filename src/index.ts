@@ -32,10 +32,8 @@ try {
       let currentPort = port;
 
       const loadBalancer = http.createServer((req, res) => {
-        console.log('parallel', parallel);
-        console.log('1currentPort1', currentPort);
         currentPort = portToPicker(currentPort, parallel);
-        console.log('currentPort2', currentPort);
+
         const options = {
           hostname: host,
           port: currentPort,
